@@ -37,13 +37,18 @@ def main(imp=False, run=False, file="segment_coordinates.txt"):
     file = file
 
 imp:
+
 –	False: You want to draw the segments
+
 –	True: You want to import a text file of coordinates (must be in correct format)
 
 run:
+
 –	False: Click start or spacebar to advance to the next change in SLS
+
 –	True: Run through entire SLS automatically
 
 file
+
 –	name of the text file
 
