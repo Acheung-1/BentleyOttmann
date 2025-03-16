@@ -2,25 +2,26 @@
 
 **Problem Statement**
 
-Devise and implement a sweep algorithm to perform the following task: The input is a set S of n line segments in the plane. The algorithm is to determine if the union of these segments is a tree or not (i.e., in the arrangement of the segments, is there a single face, the face at infinity?) An algorithm similar to the Bentley-Ottmann sweep should be possible. To simplify matters, you can use data structures from an appropriate library, or implement trivial, naive data structures. Try to animate the algorithm so it can be viewed and understood by the class. 
+The input is a set S of n line segments in the plane. The algorithm is to determine if the union of these segments forms a face or a tree.
 
 **Assumptions**
 
 Assume no 3 points are colinear, no 2 endpoints lie on a horizontal/vertical line.
 
+**Background**
+
+The Bentley-Ottmann sweep line algorithm is an efficient method for detecting all intersections among a set of line segments in a plane, operating in O((n+k)logn) time, where n is the number of segments and k is the number of intersections. The algorithm uses a sweep line approach, processing events from top to bottom based on decreasing y-coordinate. It maintains an event queue, implemented as a min-heap, which stores three types of events: segment start points, segment end points, and intersection points. An AVL tree keeps track of the active line segments intersected by the sweep line, ordered from left to right, at any given time. As the sweep line moves downward, segments are inserted into or removed from the BST, and intersections between adjacent segments are identified and processed. When an intersection occurs, the involved segments swap positions in the AVL tree, and potential new intersections are checked efficiently. At any moment, the event queue contains only the highest intersection that has yet to be processed.
+
 **My Approach**
 
-Every line segment is represented as a node. I built a custom AVL tree data structure for the Sweep Line Status (SLS) that stores the segments in the left-to-right order that a horizontal line sweeps the planar straight-line graph (PSLG). It determines the ordering by conducting left tests to decide if the node is placed in the left or right child. Each line segment also has an attribute that identifies the set of intersections it has (from top-down order). Every intersection gets a unique label when it pops off the event queue (data structure used is a heap queue). The idea behind this approach is that when there is a face, the topmost vertex will be an intersection, let’s say labeled as intersection A. Line segments 1 and 2 that cross will share their intersection labels (take the union of the intersection label set and give to both segments). As the lines form more intersections (forming the other vertexes) this unique identifier will get passed down to every line segment. At the lowest most vertex, both lines that intersect will both be labeled as having seen intersection A. If two lines that intersect contain the same intersection label, then it has formed a face.
+Each line segment is represented as a node within a custom-built AVL tree, designed to manage the Sweep Line Status (SLS). This structure maintains the segments in left-to-right order as a horizontal sweep line progresses through the planar straight-line graph (PSLG). The tree determines the placement of nodes by performing left tests, deciding whether a segment should be inserted as a left or right child.
 
-I couldn’t get the AVL tree to work perfectly, when there are swaps and deletions, the nodes ordering might get messed up and sometimes I can’t find the specific node in O(logn) time, so I cheated and made it look through all the nodes in O(n) time only if this is the case. The number of times it does this is printed in the terminal for reference. The number of times it must do a linear scan to find a node is significantly smaller than the number of times it can find it going down the tree.
+Additionally, each line segment is assigned an attribute that tracks its set of intersections in top-down order. Intersections are processed using a heap-based event queue, where each intersection receives a unique label upon being dequeued. The core idea behind this approach is that the topmost vertex of a face will always be an intersection, which we can label as intersection A. When two segments (e.g., segment 1 and segment 2) intersect, they share their intersection labels by merging their label sets and passing them to both segments. As more intersections occur along the segments, this label propagates downward. By the time the lowest vertex is reached, both intersecting segments will carry the same label, indicating that they have previously met at an upper intersection. If two intersecting segments already share the same label, a closed face has been successfully detected.
 
-The code runs in O((n+k)logn) where k is the number of intersections. At any point in time, the event queue only contains one intersection (the top-most intersection that has been currently found that has not been swept yet).
-How to run the code:
-
+**How to run the code**
 Can run as a script in the terminal: Python BentleyOttmannSweep.py
-Or in VS code.
 
-Another screen will pop up. Draw line segments in the top-left quadrant using point clicks. Two clicks identify the start and end of a line segment. It is advisable to space out intersections and endpoints of segments so the current sweep line status could be visible to the right. When ready, press the start button. 
+Draw line segments in the top-left quadrant using point clicks. Two clicks identify the start and end of a line segment. It is advisable to space out intersections and endpoints of segments so the current sweep line status could be visible to the right. When ready, press the start button. 
  
 A text file, “segment_coordinates.txt”, will be produced. This contains the number of segments and the coordinates.
  
@@ -37,18 +38,12 @@ def main(imp=False, run=False, file="segment_coordinates.txt"):
     file = file
 
 imp:
-
 –	False: You want to draw the segments
-
 –	True: You want to import a text file of coordinates (must be in correct format)
 
 run:
-
 –	False: Click start or spacebar to advance to the next change in SLS
-
 –	True: Run through entire SLS automatically
 
 file
-
 –	name of the text file
-
